@@ -16,7 +16,6 @@
 
 1. Clone the repository:
 
-   ```bash
    git clone https://github.com/snejmail/Book-cover-recognition.git
    cd Book-cover-recognition
 
