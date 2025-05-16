@@ -21,10 +21,11 @@ train_datagen = ImageDataGenerator(
     validation_split=0.2
 )
 
+batch_size = 64
 train_generator = train_datagen.flow_from_directory(
     dataset_dir,
     target_size=(128, 128),
-    batch_size=8,
+    batch_size=batch_size,
     class_mode='categorical',
     subset='training',
     shuffle=True
@@ -33,7 +34,7 @@ train_generator = train_datagen.flow_from_directory(
 val_generator = train_datagen.flow_from_directory(
     dataset_dir,
     target_size=(128, 128),
-    batch_size=8,
+    batch_size=batch_size,
     class_mode='categorical',
     subset='validation',
     shuffle=True
@@ -48,31 +49,32 @@ model.compile(
 )
 
 early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
-checkpoint = ModelCheckpoint('model/best_model.h5',
+checkpoint = ModelCheckpoint('model/best_model.keras',
                              monitor='val_loss',
                              save_best_only=True,
                              mode='min',
                              verbose=1)
 
+epochs = 1
 history = model.fit(
     train_generator,
     validation_data=val_generator,
-    epochs=10,
+    epochs=epochs,
     callbacks=[early_stop, checkpoint],
 )
 
 plt.figure(figsize=(12, 6))
 plt.subplot(1, 2, 1)
 plt.plot(history.history['accuracy'], label='Train Accuracy')
-plt.plot(history.history['val_accuracy'], label='Validation Loss')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.legend()
-plt.title('Model Loss Over Epochs')
+plt.title('Model Accuracy Over Epochs')
 plt.tight_layout()
 plt.show()
 
-best_model = load_model('model/best_model.h5')
+best_model = load_model('model/best_model.keras')
 
 test_loss, test_acc = best_model.evaluate(val_generator)
 print(f"Test accuracy: {test_acc}")
