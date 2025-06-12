@@ -3,7 +3,7 @@ import pickle
 from tensorflow.keras.models import load_model
 from utils import process_image
 
-best_model = load_model('model/best_model.h5')
+best_model = load_model('model/best_model.keras')
 
 with open('model/categories.pkl', 'rb') as f:
     categories = pickle.load(f)

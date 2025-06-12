@@ -1,10 +1,11 @@
 from predict import predict_book_cover
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import os
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
+predictions_history = []
 
 
 @app.route('/')
@@ -26,6 +27,14 @@ def upload():
 
         genre_label, confidence = predict_book_cover(filepath)
 
+        predictions_history.append({
+            "filename": filename,
+            "prediction": genre_label,
+            "confidence": float(confidence)
+        })
+
+        print(predictions_history)
+
         return render_template(
             'result.html',
             filename=filename,
@@ -34,5 +43,11 @@ def upload():
         )
 
 
+@app.route('/api/predictions')
+def get_predictions():
+    return jsonify(predictions_history)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+
