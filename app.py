@@ -1,3 +1,5 @@
+import csv
+from datetime import datetime
 from predict import predict_book_cover
 from flask import Flask, render_template, request, jsonify
 import os
@@ -28,18 +30,26 @@ def upload():
         genre_label, confidence = predict_book_cover(filepath)
 
         predictions_history.append({
+            "index": len(predictions_history) + 1,
             "filename": filename,
             "prediction": genre_label,
             "confidence": float(confidence)
         })
 
-        print(predictions_history)
+        file_exists = os.path.exists('predictions_log.csv')
+        write_header = not file_exists or os.path.getsize('predictions_log.csv') == 0
+        with open('predictions_log.csv', mode='a', newline='') as file:
+            writer = csv.writer(file)
+            if write_header:
+                writer.writerow(['datetime', 'filename', 'prediction', 'confidence', 'index'])
+            writer.writerow([datetime.now(), filename, genre_label, confidence, len(predictions_history)])
 
         return render_template(
             'result.html',
             filename=filename,
             prediction=genre_label,
-            confidence=f"{confidence * 100:.2f}%"
+            confidence=f"{confidence * 100:.2f}%",
+            index=len(predictions_history),
         )
 
 
