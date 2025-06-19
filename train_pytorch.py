@@ -1,7 +1,11 @@
 from multiprocessing import freeze_support
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from sklearn.metrics import confusion_matrix, classification_report
+
 from pytorch_dataset import train_loader, val_loader
 from pytorch_model import MobileNetV2Custom
 
@@ -55,7 +59,6 @@ def main():
     accuracy = 100 * correct / total
     print(f"Validation Accuracy: {accuracy:.2f}%")
 
-    from sklearn.metrics import classification_report
     all_preds = []
     all_labels = []
 
@@ -76,6 +79,18 @@ def main():
     torch.save(model.state_dict(), "pytorch_best_model.pth")
     print("Model saved as pytorch_best_model.pth")
     print("Training complete!")
+
+    all_labels = np.array(all_labels)
+    all_preds = np.array(all_preds)
+
+    cm = confusion_matrix(all_labels, all_preds)
+    print("Confusion Matrix:")
+    print(cm)
+
+    per_class_acc = cm.diagonal() / cm.sum(axis=1)
+    print("\nPer-Class Accuracy:")
+    for i, acc in enumerate(per_class_acc):
+        print(f"Class {i}: {acc:.2%}")
 
 
 if __name__ == "__main__":
